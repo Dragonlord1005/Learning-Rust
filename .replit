@@ -1,4 +1,4 @@
-run = "rustup"
+run = "cargo run"
 
 entrypoint = "src/main.rs"
 

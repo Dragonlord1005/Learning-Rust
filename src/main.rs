@@ -1,37 +1,48 @@
-use rand::Rng;
-use std::cmp::Ordering;
-use std::io;
+use rltk::{GameState, Rltk, VirtualKeyCode, RGB};
+use specs::prelude::*;
+use specs_derive::*;
+use std::cmp::{max, min};
 
+#[derive(Component)]
+struct Position {
+    x: i32,
+    y: i32,
+}
+
+#[derive(Component)]
+struct Renderable {
+    glyph: rltk::FontCharType,
+    fg: RGB,
+    bg: RGB,
+}
+
+struct State {
+    ecs: World,
+}
+
+#[allow(unused)]
 fn main() {
-    println!("Guess the number!");
-
-    let secret_number = rand::thread_rng().gen_range(1..101);
-
-    // println!("The secret number is {}", secret_number);
-
-    loop {
-        println!("Please input your guess.");
-
-        let mut guess = String::new();
-
-        io::stdin()
-            .read_line(&mut guess)
-            .expect("Failed to read line");
-
-        let guess: u32 = match guess.trim().parse() {
-            Ok(num) => num,
-            Err(_) => continue,
-        };
-
-        println!("You guessed: {}", guess);
-
-        match guess.cmp(&secret_number) {
-            Ordering::Less => println!("Too Small!👎"),
-            Ordering::Greater => println!("Too Big!👎"),
-            Ordering::Equal => {
-                println!("You Win😻");
-                break;
-            }
-        }
+    let mut gs = State { ecs: World::new() };
+    gs.ecs.register::<Position>();
+    gs.ecs.register::<Renderable>();
+    gs.ecs
+        .create_entity()
+        .with(Position { x: 40, y: 25 })
+        .with(Renderable {
+            glyph: rltk::to_cp437('@'),
+            fg: RGB::named(rltk::YELLOW),
+            bg: RGB::named(rltk::BLACK),
+        })
+        .build();
+    for i in 0..10 {
+        gs.ecs
+            .create_entity()
+            .with(Position { x: i * 7, y: 20 })
+            .with(Renderable {
+                glyph: rltk::to_cp437('☺'),
+                fg: RGB::named(rltk::RED),
+                bg: RGB::named(rltk::BLACK),
+            })
+            .build();
     }
 }
